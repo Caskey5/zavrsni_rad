@@ -1,12 +1,11 @@
          Račun
 ------------------------------
 ------------------------------
-Ime: Nikola 
-Prezime: Lukic
-Datum: 15-05-2025
-Vrijeme: 13:00
-Usluga: Manikura
-Cijena: 20€
+Korisnik: Nikola Lukic
+Datum: 06-05-2025
+Vrijeme: 11:00
+Usluga: Fizio terapija
+Cijena: 35€
 ------------------------------
 ------------------------------
 

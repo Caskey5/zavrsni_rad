@@ -1,1 +1,1 @@
-# zavrsni_rad
+"# machina_python" 
