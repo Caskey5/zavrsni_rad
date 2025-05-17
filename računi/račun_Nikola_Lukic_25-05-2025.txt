@@ -1,0 +1,13 @@
+         Račun
+------------------------------
+------------------------------
+Ime: Nikola 
+Prezime: Lukic
+Datum: 25-05-2025
+Vrijeme: 16:00
+Usluga: Fizio terapija
+Cijena: 35€
+------------------------------
+------------------------------
+
+   Hvala na povjerenju!   
