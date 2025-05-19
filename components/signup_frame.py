@@ -4,6 +4,7 @@ import csv
 import os
 import hashlib
 from validation.validators import is_valid_password
+from utils.data_manager import hash_password
 
 class SignupFrame(tk.Frame):
     def __init__(self, master, on_success, on_back):
@@ -62,11 +63,13 @@ class SignupFrame(tk.Frame):
         os.makedirs("data", exist_ok=True)
         file_exists = os.path.isfile(filepath)
 
+        hashed_password = hash_password(lozinka)
+
         with open(filepath, mode="a", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
             if not file_exists:
                 writer.writerow(["Ime", "Prezime", "Broj", "Nadimak", "Lozinka"])
-            writer.writerow([ime, prezime, broj, nadimak, lozinka])
+            writer.writerow([ime, prezime, broj, nadimak, hashed_password])
 
         messagebox.showinfo("Uspješno", "Registracija je uspješna!")
         self.on_success(ime, prezime, broj)

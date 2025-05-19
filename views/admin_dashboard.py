@@ -4,6 +4,8 @@ from tkinter import ttk
 from tkcalendar import Calendar
 import csv
 import os
+from utils.data_manager import hash_password
+import datetime
 
 class AdminDashboard:
     def __init__(self, root, ime, prezime, on_logout):
@@ -67,7 +69,7 @@ class AdminDashboard:
 
         tk.Button(
             self.frame,
-            text="Logout",
+            text="Odjava",
             width=25,
             command=self.logout
         ).pack(pady=10)
@@ -95,16 +97,17 @@ class AdminDashboard:
             if not all(values):
                 messagebox.showerror("Greška", "Sva polja su obavezna.")
                 return
-
+            # Hashiraj lozinku samo ako već nije hashirana
+            lozinka = values[-1]
+            if len(lozinka) != 64 or not all(c in "0123456789abcdef" for c in lozinka.lower()):
+                values[-1] = hash_password(lozinka)
             filepath = "data/zaposlenici.csv"
             os.makedirs("data", exist_ok=True)
-
             with open(filepath, "a", newline="", encoding="utf-8") as file:
                 writer = csv.writer(file)
                 if os.stat(filepath).st_size == 0:
                     writer.writerow(["Ime", "Prezime", "Pozicija", "Broj", "Nadimak", "Lozinka"])
                 writer.writerow(values)
-
             messagebox.showinfo("Uspjeh", "Zaposlenik dodan.")
             self.setup_ui()
 
@@ -174,20 +177,53 @@ class AdminDashboard:
         self.clear_root()
         frame = tk.Frame(self.root, padx=20, pady=20, bg="light salmon")
         frame.place(relx=0.5, rely=0.5, anchor="center")
-
+        # Dodaj labelu s radnim vremenom
+        radno_vrijeme = ("Radno vrijeme: ponedjeljak - petak 08:00-21:00, subota 08:00-13:00")
+        tk.Label(frame, text=radno_vrijeme, font=("Helvetica", 10, "italic"), bg="light salmon").grid(row=0, column=0, columnspan=3, pady=(0, 5))
         time_var = tk.StringVar()
         service_var = tk.StringVar()
-
-        cal = Calendar(frame, selectmode='day', date_pattern='dd-mm-yyyy')
-        cal.grid(row=0, column=0, columnspan=3, pady=(10, 20))
-
+        cal = Calendar(frame, selectmode='day', date_pattern='dd-mm-yyyy', mindate=datetime.date.today())
+        cal.grid(row=1, column=0, columnspan=3, pady=(10, 20))
+        def update_hours(*args):
+            selected_date = cal.get_date()
+            # Provjeri je li nedjelja
+            import datetime
+            try:
+                day, month, year = map(int, selected_date.split("-"))
+                dt = datetime.date(year, month, day)
+            except Exception:
+                hour_dropdown['values'] = ["Vrijeme"]
+                hour_dropdown.current(0)
+                return
+            if dt.weekday() == 6:  # Nedjelja
+                messagebox.showwarning("Nedostupno", "Nedjeljom ne radimo. Odaberite drugi dan.")
+                cal.selection_clear()
+                hour_dropdown['values'] = ["Vrijeme"]
+                hour_dropdown.current(0)
+                return
+            if dt.weekday() == 5:  # Subota
+                sati = [f"{i:02d}:00" for i in range(8, 14)]
+            else:
+                sati = [f"{i:02d}:00" for i in range(8, 22)]
+            zauzeti = set()
+            if os.path.isfile("data/zakazani_termini.csv"):
+                with open("data/zakazani_termini.csv", newline="", encoding="utf-8") as file:
+                    reader = csv.DictReader(file)
+                    for row in reader:
+                        if row["Datum"] == selected_date:
+                            zauzeti.add(row["Vrijeme"])
+            slobodni = [s for s in sati if s not in zauzeti]
+            hour_dropdown['values'] = ["Vrijeme"] + slobodni
+            hour_dropdown.current(0)
+        cal.bind("<<CalendarSelected>>", update_hours)
         hour_dropdown = ttk.Combobox(
             frame,
             textvariable=time_var,
-            values=["Vrijeme"] + [f"{i:02d}" for i in range(8, 17)]
+            values=["Vrijeme"] + [f"{i:02d}:00" for i in range(8, 22)]
         )
         hour_dropdown.current(0)
-        hour_dropdown.grid(row=1, column=0, columnspan=3, pady=(0, 10))
+        hour_dropdown.grid(row=2, column=0, columnspan=3, pady=(0, 10))
+        update_hours()
 
         services = self.load_services_from_csv()
         service_dropdown = ttk.Combobox(
@@ -196,7 +232,7 @@ class AdminDashboard:
             values=["Zahvat"] + services
         )
         service_dropdown.current(0)
-        service_dropdown.grid(row=2, column=0, columnspan=3, pady=(0, 10))
+        service_dropdown.grid(row=3, column=0, columnspan=3, pady=(0, 10))
 
         def save():
             selected_date = cal.get_date()
@@ -245,15 +281,33 @@ class AdminDashboard:
                     writer = csv.writer(file)
                     if not file_exists:
                         writer.writerow(["Ime", "Prezime", "Broj", "Datum", "Vrijeme", "Zahvat"])
-                    writer.writerow([ime, prezime, broj, selected_date, f"{selected_time}:00", selected_service])
+                    writer.writerow([ime, prezime, broj, selected_date, f"{selected_time}", selected_service])
 
                 info_window.destroy()
                 self.show_confirmation(selected_date, selected_time, selected_service, ime, prezime)
 
             tk.Button(info_window, text="Potvrdi", command=confirm).pack(pady=10)
 
-        tk.Button(frame, text="Zakaži termin", command=save).grid(row=3, column=1, pady=(0, 10))
+        tk.Button(frame, text="Zakaži termin", command=save).grid(row=4, column=1, pady=(0, 10))
         tk.Button(frame, text="Nazad", command=self.setup_ui).grid(row=6, column=1, pady=20)
+
+    def show_confirmation(self, date, time, service, ime, prezime):
+        self.clear_root()
+        frame = tk.Frame(self.root, padx=20, pady=20, bg="light salmon")
+        frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        message = f"Termin zakazan za {date} u {time}\nZahvat: {service}\nZa: {ime} {prezime}"
+        tk.Label(
+            frame,
+            text=message,
+            font=("Arial", 12),
+            fg="black",
+            bg="light salmon",
+            justify="left"
+        ).pack(pady=20)
+
+        tk.Button(frame, text="Nazad", command=self.setup_ui).pack(pady=10)
+
 
     def cancel_appointment(self):
         self.clear_root()

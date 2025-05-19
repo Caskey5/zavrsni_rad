@@ -1,5 +1,9 @@
 import csv
 import os
+import hashlib
+
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 class DataManager:
     def __init__(self, data_dir="data"):

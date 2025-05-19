@@ -3,6 +3,7 @@ from tkinter import messagebox
 import csv
 import os
 import hashlib
+from utils.data_manager import hash_password
 
 class LoginFrame(tk.Frame):
     def __init__(self, master, on_success, on_back):
@@ -54,11 +55,11 @@ class LoginFrame(tk.Frame):
     def check_credentials(self, filepath, username, password):
         if not os.path.isfile(filepath):
             return False
-            
+        hashed_password = hash_password(password)
         with open(filepath, newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
             for row in reader:
-                if row["Nadimak"] == username and row["Lozinka"] == password:
+                if row["Nadimak"] == username and row["Lozinka"] == hashed_password:
                     return True
         return False
 

@@ -16,7 +16,7 @@ class BeautySalonApp:
         self.setup_welcome()
 
     def setup_background(self):
-        bg_image = Image.open("slike/pozadina.png")
+        bg_image = Image.open("pictures/pozadina.png")
         bg_image = bg_image.resize((700, 500))
         self.bg_photo = ImageTk.PhotoImage(bg_image)
 
