@@ -73,7 +73,7 @@ class UserDashboard:
         except FileNotFoundError:
             messagebox.showerror("Greška", "Nije moguće učitati usluge.")
         return services
-    # PROMIJENI FUNKCIONALNOST
+
     def schedule_appointment(self):
         self.clear_root()
         frame = tk.Frame(self.root, padx=20, pady=20, bg="light salmon")
@@ -119,6 +119,7 @@ class UserDashboard:
         cal.bind("<<CalendarSelected>>", update_hours)
         hour_dropdown = ttk.Combobox(
             frame,
+            state="readonly",
             textvariable=time_var,
             values=["Vrijeme"] + [f"{i:02d}:00" for i in range(8, 22)]
         )
@@ -129,6 +130,7 @@ class UserDashboard:
         services = self.load_services_from_csv()
         service_dropdown = ttk.Combobox(
             frame,
+            state="readonly",
             textvariable=service_var,
             values=["Zahvat"] + services
         )

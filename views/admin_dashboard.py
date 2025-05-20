@@ -81,16 +81,22 @@ class AdminDashboard:
 
         labels = ["Ime", "Prezime", "Pozicija", "Broj", "Nadimak", "Lozinka"]
         entries = []
+        specijalizacija = ["Pediker", "Fizio", "Njega lica/tijela", "Depilacija/laser"]
 
         for i, label_text in enumerate(labels):
             tk.Label(frame, text=label_text).grid(row=i, column=0, pady=10, padx=10, sticky="e")
-            entry = tk.Entry(
-                frame,
-                width=30,
-                show="*" if "lozinka" in label_text.lower() else ""
-            )
-            entry.grid(row=i, column=1, pady=10)
-            entries.append(entry)
+            if label_text == "Pozicija":
+                combo = ttk.Combobox(frame, values=specijalizacija, state="readonly", width=28)
+                combo.grid(row=i, column=1, pady=10)
+                entries.append(combo)
+            else:
+                entry = tk.Entry(
+                    frame,
+                    width=30,
+                    show="*" if "lozinka" in label_text.lower() else ""
+                )
+                entry.grid(row=i, column=1, pady=10)
+                entries.append(entry)
 
         def save():
             values = [e.get() for e in entries]
@@ -177,7 +183,7 @@ class AdminDashboard:
         self.clear_root()
         frame = tk.Frame(self.root, padx=20, pady=20, bg="light salmon")
         frame.place(relx=0.5, rely=0.5, anchor="center")
-        # Dodaj labelu s radnim vremenom
+
         radno_vrijeme = ("Radno vrijeme: ponedjeljak - petak 08:00-21:00, subota 08:00-13:00")
         tk.Label(frame, text=radno_vrijeme, font=("Helvetica", 10, "italic"), bg="light salmon").grid(row=0, column=0, columnspan=3, pady=(0, 5))
         time_var = tk.StringVar()
@@ -186,7 +192,7 @@ class AdminDashboard:
         cal.grid(row=1, column=0, columnspan=3, pady=(10, 20))
         def update_hours(*args):
             selected_date = cal.get_date()
-            # Provjeri je li nedjelja
+            # Provjera je li nedjelja
             import datetime
             try:
                 day, month, year = map(int, selected_date.split("-"))
@@ -218,6 +224,7 @@ class AdminDashboard:
         cal.bind("<<CalendarSelected>>", update_hours)
         hour_dropdown = ttk.Combobox(
             frame,
+            state="readonly",
             textvariable=time_var,
             values=["Vrijeme"] + [f"{i:02d}:00" for i in range(8, 22)]
         )
@@ -228,6 +235,7 @@ class AdminDashboard:
         services = self.load_services_from_csv()
         service_dropdown = ttk.Combobox(
             frame,
+            state="readonly",
             textvariable=service_var,
             values=["Zahvat"] + services
         )

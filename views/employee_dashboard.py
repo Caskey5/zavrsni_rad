@@ -110,6 +110,7 @@ class EmployeeDashboard:
         cal.bind("<<CalendarSelected>>", update_hours)
         hour_dropdown = ttk.Combobox(
             frame,
+            state="readonly",
             textvariable=time_var,
             values=["Vrijeme"] + [f"{i:02d}:00" for i in range(8, 22)]
         )
@@ -120,6 +121,7 @@ class EmployeeDashboard:
         services = self.load_services_from_csv()
         service_dropdown = ttk.Combobox(
             frame,
+            state="readonly",
             textvariable=service_var,
             values=["Zahvat"] + services
         )
