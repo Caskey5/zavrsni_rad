@@ -1,12 +1,12 @@
          Račun
 ------------------------------
 ------------------------------
-Ime: Nikola 
-Prezime: Lukic
-Datum: 25-05-2025
-Vrijeme: 16:00
-Usluga: Fizio terapija
-Cijena: 35€
+Ime: Lucija 
+Prezime: Nikolic
+Datum: 23-05-2025
+Vrijeme: 10:00
+Usluga: Njega lica
+Cijena: 28€
 ------------------------------
 ------------------------------
 

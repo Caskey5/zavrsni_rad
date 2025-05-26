@@ -1,10 +1,10 @@
          Račun
 ------------------------------
 ------------------------------
-Ime: Nikola 
-Prezime: Lukic
+Ime: Ivan 
+Prezime: Mihalic
 Datum: 22-05-2025
-Vrijeme: 09:00
+Vrijeme: 15:00
 Usluga: Fizio terapija
 Cijena: 35€
 ------------------------------
