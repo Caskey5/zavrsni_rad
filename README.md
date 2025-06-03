@@ -1,4 +1,3 @@
-"# machina_python" 
 
 Za testiranje:
 
